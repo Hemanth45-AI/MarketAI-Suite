@@ -239,47 +239,56 @@ def generate_pitch_api():
     try:
         data = request.json
         
-        prompt = f"""Create a compelling sales pitch with these details:
+        prompt = f"""Create a compelling, personalized sales pitch based on the following details:
 
-PRODUCT: {data.get('product', '')}
-CUSTOMER: {data.get('customer', '')}
-INDUSTRY: {data.get('industry', '')}
-COMPANY SIZE: {data.get('company_size', '')}
-BUDGET: {data.get('budget', '')}
-CHALLENGES: {data.get('challenges', '')}
+PROMPT INPUTS:
+- PRODUCT/SERVICE: {data.get('product', '')}
+- KEY FEATURES: {', '.join(data.get('features', [])) if isinstance(data.get('features'), list) else data.get('features', 'Not specified')}
+- CUSTOMER: {data.get('customer', '')}
+- INDUSTRY: {data.get('industry', '')}
+- COMPANY SIZE: {data.get('company_size', '')}
+- CHALLENGES: {data.get('challenges', '')}
+- GOALS: {data.get('goals', '')}
+- COMPETITORS: {', '.join(data.get('competitors', [])) if isinstance(data.get('competitors'), list) else data.get('competitors', 'Not specified')}
+- PITCH TYPE: {data.get('pitch_type', 'sales pitch')}
+- DESIRED TONE: {data.get('tone', 'professional')}
+- ADDITIONAL NOTES: {data.get('notes', 'None')}
 
-Please provide a structured pitch with these sections:
+Please provide a highly structured and persuasive response with these sections:
+
+## 🏷️ PRODUCT OVERVIEW
+- A comprehensive description of the product/service
+- How it specifically addresses the industry landscape
+- The core value it provides
 
 ## 🎯 30-SECOND ELEVATOR PITCH
 - Concise, engaging opening
-- Immediate value proposition
+- Immediate value proposition focused on the customer's challenges
 
 ## 💡 VALUE PROPOSITION
 - Clear business benefits (quantify when possible)
 - ROI justification
-- Problem-solution fit
+- Problem-solution fit for {data.get('company_size', 'their company size')}
 
-## ⚡ KEY DIFFERENTIATORS
-- What makes this unique vs competitors
-- Technology advantages
-- Implementation advantages
+## ⚡ KEY DIFFERENTIATORS & FEATURES
+- What makes this unique vs {data.get('competitors', 'competitors')}
+- Highlight these key features: {', '.join(data.get('features', [])) if isinstance(data.get('features'), list) else 'the features provided'}
 
 ## 🎯 TARGETED SOLUTIONS
-- Specific solutions to customer's stated challenges
-- Customized recommendations
-- Success metrics
+- Specific solutions to: {data.get('challenges', 'the customer challenges')}
+- Detailed implementation recommendations
+- Key success metrics
 
-## 📞 CALL-TO-ACTION
-- Specific next steps
-- Timeline suggestions
-- Offer details (demo, trial, consultation)
+## 📞 CALL-TO-ACTION (CTA)
+- Specific next steps for a {data.get('pitch_type', 'follow-up')}
+- Timeline suggestions and offer details
 
 ## 📧 COMMUNICATION TEMPLATES
-- Email template
-- LinkedIn message template
-- Follow-up sequence
+- Optimized {data.get('pitch_type', 'message')} template
+- LinkedIn outreach variation
+- 2-step follow-up sequence
 
-Make it personalized, persuasive, and professional. Use markdown formatting."""
+Make the content deeply personalized and highly persuasive. Use professional markdown formatting with icons."""
 
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",

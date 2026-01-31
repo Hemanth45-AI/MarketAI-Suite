@@ -108,7 +108,7 @@
     display: none;
 }
 
-.format-card input:checked + .format-content {
+.format-card input:checked+.format-content {
     border-color: var(--primary);
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.1));
 }
@@ -139,10 +139,21 @@
     flex-shrink: 0;
 }
 
-.format-icon.email { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
-.format-icon.meeting { background: linear-gradient(135deg, var(--success), #059669); }
-.format-icon.demo { background: linear-gradient(135deg, var(--accent), #d97706); }
-.format-icon.linkedin { background: linear-gradient(135deg, #0077b5, #00a0dc); }
+.format-icon.email {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+.format-icon.meeting {
+    background: linear-gradient(135deg, var(--success), #059669);
+}
+
+.format-icon.demo {
+    background: linear-gradient(135deg, var(--accent), #d97706);
+}
+
+.format-icon.linkedin {
+    background: linear-gradient(135deg, #0077b5, #00a0dc);
+}
 
 .format-info h5 {
     margin: 0;
@@ -178,7 +189,7 @@
     display: none;
 }
 
-.role-option input:checked + .role-badge {
+.role-option input:checked+.role-badge {
     border-color: var(--primary);
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.1));
     color: var(--primary);
@@ -206,10 +217,21 @@
     font-size: 1.25rem;
 }
 
-.role-badge.ceo i { color: var(--primary); }
-.role-badge.director i { color: var(--success); }
-.role-badge.manager i { color: var(--accent); }
-.role-badge.specialist i { color: var(--secondary); }
+.role-badge.ceo i {
+    color: var(--primary);
+}
+
+.role-badge.director i {
+    color: var(--success);
+}
+
+.role-badge.manager i {
+    color: var(--accent);
+}
+
+.role-badge.specialist i {
+    color: var(--secondary);
+}
 
 /* Features List */
 .features-list {
@@ -453,9 +475,17 @@
     flex-shrink: 0;
 }
 
-.template-icon.email { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
-.template-icon.b2b { background: linear-gradient(135deg, var(--success), #059669); }
-.template-icon.saas { background: linear-gradient(135deg, var(--accent), #d97706); }
+.template-icon.email {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+.template-icon.b2b {
+    background: linear-gradient(135deg, var(--success), #059669);
+}
+
+.template-icon.saas {
+    background: linear-gradient(135deg, var(--accent), #d97706);
+}
 
 .template-info h5 {
     margin: 0;
@@ -550,7 +580,8 @@
     line-height: 1.6;
 }
 
-.pitch-content h2, .pitch-content h3 {
+.pitch-content h2,
+.pitch-content h3 {
     margin-top: 1.5em;
     margin-bottom: 0.75em;
     color: var(--text-primary);
@@ -561,7 +592,8 @@
     color: var(--text-secondary);
 }
 
-.pitch-content ul, .pitch-content ol {
+.pitch-content ul,
+.pitch-content ol {
     margin-left: 1.5em;
     margin-bottom: 1em;
 }
@@ -683,8 +715,15 @@
 }
 
 @keyframes progress {
-    0%, 100% { transform: translateX(-100%); }
-    50% { transform: translateX(300%); }
+
+    0%,
+    100% {
+        transform: translateX(-100%);
+    }
+
+    50% {
+        transform: translateX(300%);
+    }
 }
 
 .loading-tips {
@@ -850,9 +889,20 @@
     font-size: 0.75rem;
 }
 
-.tag.format-email { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-.tag.format-meeting { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-.tag.format-demo { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+.tag.format-email {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+}
+
+.tag.format-meeting {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.tag.format-demo {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--accent);
+}
 
 .history-actions {
     display: flex;
@@ -873,8 +923,13 @@
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideUp {
@@ -882,6 +937,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -889,6 +945,15 @@
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0) scale(1); opacity: 1; }
-    50% { transform: translateY(-20px) scale(1.2); opacity: 0.7; }
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 0.7;
+    }
 }

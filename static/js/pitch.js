@@ -34,93 +34,152 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Event Listeners
 function setupEventListeners() {
+    // Helper to safely add event listeners
+    const safeAddListener = (id, event, handler) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(event, handler);
+    };
+
     // Character counters
-    document.getElementById('productDescription').addEventListener('input', updateCharCounters);
-    document.getElementById('customerChallenges').addEventListener('input', updateCharCounters);
-    document.getElementById('keyFeatures').addEventListener('input', updateFeatures);
-    
-    // Pitch type selection
+    safeAddListener('productDescription', 'input', updateCharCounters);
+    safeAddListener('challenges', 'input', updateCharCounters);
+    safeAddListener('keyFeatures', 'input', updateFeatures);
+
+    // Pitch type selection (radio buttons use querySelectorAll, already safer)
     document.querySelectorAll('input[name="pitchType"]').forEach(radio => {
         radio.addEventListener('change', updatePitchType);
     });
-    
+
     // Competitors input
-    document.getElementById('competitors').addEventListener('change', updateCompetitors);
-    
+    safeAddListener('competitors', 'change', updateCompetitors);
+
     // Form submission
-    pitchForm.addEventListener('submit', generatePitch);
+    if (pitchForm) {
+        pitchForm.addEventListener('submit', generatePitch);
+    } else {
+        const fallbackForm = document.getElementById('pitchForm');
+        if (fallbackForm) fallbackForm.addEventListener('submit', generatePitch);
+    }
 }
 
 // Section Navigation
 function nextSection() {
     if (!validateCurrentSection()) return;
-    
+
     sections[currentSection].classList.remove('active');
+
+    // Update step indicators
+    const steps = document.querySelectorAll('.step');
+    if (steps[currentSection]) steps[currentSection].classList.remove('active');
+
     currentSection = Math.min(currentSection + 1, 2);
+
     sections[currentSection].classList.add('active');
+    if (steps[currentSection]) steps[currentSection].classList.add('active');
+
     updateSummary();
 }
 
 function prevSection() {
     sections[currentSection].classList.remove('active');
+
+    // Update step indicators
+    const steps = document.querySelectorAll('.step');
+    if (steps[currentSection]) steps[currentSection].classList.remove('active');
+
     currentSection = Math.max(currentSection - 1, 0);
+
     sections[currentSection].classList.add('active');
+    if (steps[currentSection]) steps[currentSection].classList.add('active');
 }
 
 function validateCurrentSection() {
     const section = sections[currentSection];
-    
+
     if (currentSection === 0) {
-        const productName = document.getElementById('productName').value.trim();
-        const productDesc = document.getElementById('productDescription').value.trim();
-        
+        const productName = document.getElementById('productName')?.value.trim();
+        const productDesc = document.getElementById('productDescription')?.value.trim();
+
         if (!productName || !productDesc) {
             showNotification('Please fill in product name and description', 'error');
             return false;
         }
-        
+
         formData.product = productName;
         formData.description = productDesc;
     }
-    
+
     if (currentSection === 1) {
-        const customerName = document.getElementById('customerName').value.trim();
-        const customerRole = document.getElementById('customerRole').value.trim();
-        const challenges = document.getElementById('customerChallenges').value.trim();
-        
-        if (!customerName || !customerRole || !challenges) {
-            showNotification('Please fill in customer information and challenges', 'error');
+        const customerName = document.getElementById('customerName')?.value.trim();
+        // Fix: customerRole is a radio button group, not a single ID
+        const customerRoleElement = document.querySelector('input[name="customerRole"]:checked');
+        const customerRole = customerRoleElement ? customerRoleElement.value : 'director';
+
+        // Fix: ID is 'challenges', not 'customerChallenges'
+        const challenges = document.getElementById('challenges')?.value.trim();
+
+        if (!customerName || !challenges) {
+            showNotification('Please fill in customer name and challenges', 'error');
             return false;
         }
-        
+
         formData.customer = customerName;
         formData.role = customerRole;
         formData.challenges = challenges;
+        formData.goals = document.getElementById('goals')?.value.trim() || '';
+        formData.budget = document.getElementById('budgetRange')?.value || 'medium';
+
+        // Capture other fields if they exist
+        const industry = document.getElementById('industry');
+        if (industry) formData.industry = industry.value;
+
+        const companySize = document.getElementById('companySize');
+        if (companySize) formData.companySize = companySize.value;
     }
-    
+
     return true;
 }
 
 // Form Updates
 function updateCharCounters() {
     const desc = document.getElementById('productDescription');
-    const challenges = document.getElementById('customerChallenges');
-    
-    document.getElementById('descCount').textContent = `${desc.value.length}/300`;
-    document.getElementById('challengesCount').textContent = `${challenges.value.length}/400`;
-    
-    if (desc.value.trim()) formData.description = desc.value.trim();
-    if (challenges.value.trim()) formData.challenges = challenges.value.trim();
+    const challenges = document.getElementById('challenges'); // Fix: changed from customerChallenges
+
+    if (desc) {
+        const descCount = document.getElementById('descCount');
+        if (descCount) descCount.textContent = `${desc.value.length}/500`;
+        if (desc.value.trim()) formData.description = desc.value.trim();
+    }
+
+    if (challenges) {
+        const challengesCount = document.getElementById('challengesCount');
+        if (challengesCount) challengesCount.textContent = `${challenges.value.length}/400`;
+        if (challenges.value.trim()) formData.challenges = challenges.value.trim();
+    }
 }
 
 function updateFeatures() {
-    const featuresText = document.getElementById('keyFeatures').value;
-    formData.features = featuresText.split('\n').filter(f => f.trim()).map(f => f.trim());
+    // Only try to update if element exists
+    const keyFeatures = document.getElementById('keyFeatures');
+    if (keyFeatures) {
+        const featuresText = keyFeatures.value;
+        formData.features = featuresText.split('\\n').filter(f => f.trim()).map(f => f.trim());
+    } else {
+        // Fallback for list based features if implemented
+        const features = [];
+        document.querySelectorAll('#featuresList input').forEach(input => {
+            if (input.value.trim()) features.push(input.value.trim());
+        });
+        if (features.length > 0) formData.features = features;
+    }
 }
 
 function updateCompetitors() {
-    const competitorsText = document.getElementById('competitors').value;
-    formData.competitors = competitorsText.split(',').filter(c => c.trim()).map(c => c.trim());
+    const competitorsElem = document.getElementById('competitors');
+    if (competitorsElem) {
+        const competitorsText = competitorsElem.value;
+        formData.competitors = competitorsText.split(',').filter(c => c.trim()).map(c => c.trim());
+    }
 }
 
 function updatePitchType() {
@@ -131,10 +190,19 @@ function updatePitchType() {
 }
 
 function updateSummary() {
-    document.getElementById('summaryProduct').textContent = formData.product || '-';
-    document.getElementById('summaryCustomer').textContent = formData.customer || '-';
-    document.getElementById('summaryIndustry').textContent = formData.industry || '-';
-    document.getElementById('summaryBudget').textContent = getBudgetLabel(formData.budget) || '-';
+    const summaryProduct = document.getElementById('summaryProduct');
+    const summaryCustomer = document.getElementById('summaryCustomer');
+    const summaryRole = document.getElementById('summaryRole');
+    const summaryIndustry = document.getElementById('summaryIndustry');
+    const summaryChallenges = document.getElementById('summaryChallenges');
+    const summaryBudget = document.getElementById('summaryBudget');
+
+    if (summaryProduct) summaryProduct.textContent = formData.product || '-';
+    if (summaryCustomer) summaryCustomer.textContent = formData.customer || '-';
+    if (summaryRole) summaryRole.textContent = formData.role || '-';
+    if (summaryIndustry) summaryIndustry.textContent = formData.industry || '-';
+    if (summaryBudget) summaryBudget.textContent = getBudgetLabel(formData.budget) || '-';
+    if (summaryChallenges) summaryChallenges.textContent = formData.challenges ? formData.challenges.substring(0, 50) + '...' : '-';
 }
 
 function getBudgetLabel(value) {
@@ -151,32 +219,52 @@ function getBudgetLabel(value) {
 // Pitch Generation
 async function generatePitch(e) {
     e.preventDefault();
-    
-    // Get final data
-    formData.product = document.getElementById('productName').value.trim();
-    formData.description = document.getElementById('productDescription').value.trim();
-    formData.customer = document.getElementById('customerName').value.trim();
-    formData.role = document.getElementById('customerRole').value.trim();
-    formData.industry = document.getElementById('companyIndustry').value;
-    formData.companySize = document.getElementById('companySize').value;
-    formData.challenges = document.getElementById('customerChallenges').value.trim();
-    formData.goals = document.getElementById('customerGoals').value.trim();
-    formData.budget = document.getElementById('budgetRange').value;
-    formData.tone = document.getElementById('pitchTone').value;
-    formData.notes = document.getElementById('additionalNotes').value.trim();
-    
+
+    // Get final data - with safety checks
+    formData.product = document.getElementById('productName')?.value.trim() || '';
+    formData.description = document.getElementById('productDescription')?.value.trim() || '';
+    formData.customer = document.getElementById('customerName')?.value.trim() || '';
+
+    const roleElem = document.querySelector('input[name="customerRole"]:checked');
+    formData.role = roleElem ? roleElem.value : 'director';
+
+    formData.industry = document.getElementById('industry')?.value || 'tech';
+    formData.companySize = document.getElementById('companySize')?.value || 'medium';
+    formData.challenges = document.getElementById('challenges')?.value.trim() || '';
+
+    // These fields might not exist in all versions of the HTML
+    const goalsElem = document.getElementById('goals');
+    formData.goals = goalsElem ? goalsElem.value.trim() : '';
+
+    // Provide defaults for optional fields or fix ID references
+    const budgetElem = document.getElementById('budgetRange'); // This ID might be missing in your HTML, check it
+    formData.budget = budgetElem ? budgetElem.value : 'medium';
+
+    const toneElem = document.querySelector('input[name="tone"]:checked');
+    formData.tone = toneElem ? toneElem.value : 'professional';
+
+    const formatElem = document.querySelector('input[name="format"]:checked');
+    formData.pitchType = formatElem ? formatElem.value : 'email';
+
+    formData.notes = document.getElementById('additionalNotes')?.value.trim() || '';
+
     updateFeatures();
-    updateCompetitors();
-    
+
+    // safely update competitors if element exists
+    const competitorsElem = document.getElementById('competitors');
+    if (competitorsElem) {
+        updateCompetitors();
+    }
+
     // Validation
     if (!formData.product || !formData.customer || !formData.challenges) {
         showNotification('Please fill in all required fields', 'error');
         return;
     }
-    
+
     // Show loading
     showLoading();
-    
+
     try {
         const response = await fetch('/api/generate/pitch', {
             method: 'POST',
@@ -198,9 +286,9 @@ async function generatePitch(e) {
                 notes: formData.notes
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             displayResults(data.result);
         } else {
@@ -224,7 +312,7 @@ function displayResults(html) {
     resultsContent.style.display = 'block';
     errorState.style.display = 'none';
     resultsActions.style.display = 'flex';
-    
+
     resultsContent.innerHTML = `
         <div class="pitch-results">
             <div class="pitch-header">
@@ -283,10 +371,10 @@ function displayResults(html) {
             </div>
         </div>
     `;
-    
+
     // Scroll to results
     resultsContent.scrollIntoView({ behavior: 'smooth' });
-    
+
     // Save to local storage
     saveToHistory();
 }
@@ -296,7 +384,7 @@ function showError(message) {
     resultsContent.style.display = 'none';
     errorState.style.display = 'block';
     resultsActions.style.display = 'none';
-    
+
     document.getElementById('errorMessage').textContent = message;
 }
 
@@ -338,26 +426,46 @@ function loadTemplate(templateName) {
             budget: "high"
         }
     };
-    
+
     const template = templates[templateName];
     if (!template) return;
-    
+
     // Fill form
-    document.getElementById('productName').value = template.productName;
-    document.getElementById('productDescription').value = template.productDescription;
-    document.getElementById('customerName').value = template.customerName;
-    document.getElementById('customerRole').value = template.customerRole;
-    document.getElementById('companyIndustry').value = template.companyIndustry;
-    document.getElementById('companySize').value = template.companySize;
-    document.getElementById('customerChallenges').value = template.customerChallenges;
-    document.getElementById('budgetRange').value = template.budget;
-    
+    const productName = document.getElementById('productName');
+    if (productName) productName.value = template.productName;
+
+    const productDesc = document.getElementById('productDescription');
+    if (productDesc) productDesc.value = template.productDescription;
+
+    const customerName = document.getElementById('customerName');
+    if (customerName) customerName.value = template.customerName;
+
+    // For radio buttons (role)
+    const roleRadios = document.querySelectorAll(`input[name="customerRole"][value="${template.customerRole}"]`);
+    if (roleRadios.length > 0) roleRadios[0].checked = true;
+
+    const industry = document.getElementById('industry');
+    if (industry) industry.value = template.companyIndustry;
+
+    const companySize = document.getElementById('companySize');
+    if (companySize) companySize.value = template.companySize;
+
+    const challenges = document.getElementById('challenges');
+    if (challenges) challenges.value = template.customerChallenges;
+
+    const budget = document.getElementById('budgetRange');
+    if (budget) budget.value = template.budget;
+
     // Update form data
     formData = { ...formData, ...template };
-    
+    // Map template fields to formData correctly
+    formData.role = template.customerRole;
+    formData.industry = template.companyIndustry;
+    formData.challenges = template.customerChallenges;
+
     updateCharCounters();
     updateSummary();
-    
+
     showNotification(`Loaded ${templateName} template`, 'success');
 }
 
@@ -369,7 +477,7 @@ function clearForm() {
         sections.forEach((section, index) => {
             section.classList.toggle('active', index === 0);
         });
-        
+
         formData = {
             product: '',
             description: '',
@@ -386,10 +494,10 @@ function clearForm() {
             tone: 'professional',
             notes: ''
         };
-        
+
         updateCharCounters();
         updateSummary();
-        
+
         resultsContent.innerHTML = `
             <div class="empty-results">
                 <div class="empty-icon">
@@ -413,9 +521,9 @@ function clearForm() {
                 </div>
             </div>
         `;
-        
+
         resultsActions.style.display = 'none';
-        
+
         showNotification('Form cleared successfully', 'success');
     }
 }
@@ -442,7 +550,7 @@ function savePitch() {
         generatedAt: new Date().toISOString(),
         content: resultsContent.innerHTML
     };
-    
+
     localStorage.setItem(`pitch_${Date.now()}`, JSON.stringify(pitchData));
     showNotification('Pitch saved locally!', 'success');
 }
@@ -468,9 +576,9 @@ function viewPitchHistory() {
 function loadHistory() {
     const historyList = document.getElementById('historyList');
     historyList.innerHTML = '';
-    
+
     const activities = JSON.parse(localStorage.getItem('pitch_activities') || '[]');
-    
+
     if (activities.length === 0) {
         historyList.innerHTML = `
             <div class="empty-history">
@@ -480,7 +588,7 @@ function loadHistory() {
         `;
         return;
     }
-    
+
     activities.reverse().forEach(activity => {
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item';
@@ -518,7 +626,7 @@ function saveToHistory() {
         preview: document.querySelector('.pitch-results h2')?.textContent || 'Pitch generated',
         timestamp: new Date().toISOString()
     };
-    
+
     const activities = JSON.parse(localStorage.getItem('pitch_activities') || '[]');
     activities.push(activity);
     localStorage.setItem('pitch_activities', JSON.stringify(activities));
@@ -529,7 +637,7 @@ function showNotification(message, type = 'info') {
     // Remove existing notification
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
-    
+
     // Create notification
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -542,9 +650,9 @@ function showNotification(message, type = 'info') {
             <i class="fas fa-times"></i>
         </button>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto remove after 3 seconds
     setTimeout(() => {
         if (notification.parentElement) {
@@ -571,7 +679,7 @@ document.addEventListener('keydown', (e) => {
             generatePitch(new Event('submit'));
         }
     }
-    
+
     // Escape to close modals
     if (e.key === 'Escape') {
         document.querySelectorAll('.modal.active').forEach(modal => {
