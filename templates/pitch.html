@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+
+{% block title %}AI Sales Pitch Generator - MarketAI Suite{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pitch.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-content">
+        <h1><i class="fas fa-microphone"></i> AI Sales Pitch Generator</h1>
+        <p>Craft compelling, personalized sales pitches with Groq AI. Perfect for emails, meetings, demos, and LinkedIn outreach.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn-outline" onclick="viewPitchHistory()">
+            <i class="fas fa-history"></i> History
+        </button>
+        <button class="btn-primary" onclick="newPitch()">
+            <i class="fas fa-plus"></i> New Pitch
+        </button>
+    </div>
+</div>
+
+<div class="pitch-container">
+    <!-- Left Panel: Form -->
+    <div class="form-panel">
+        <div class="form-card">
+            <div class="form-header">
+                <h3><i class="fas fa-edit"></i> Pitch Details</h3>
+                <div class="form-steps">
+                    <div class="step active">1. Product</div>
+                    <div class="step">2. Customer</div>
+                    <div class="step">3. Generate</div>
+                </div>
+            </div>
+            
+            <form id="pitchForm">
+                <!-- Product Section -->
+                <div class="form-section active" id="section1">
+                    <div class="section-header">
+                        <i class="fas fa-box-open"></i>
+                        <h4>Product/Service Details</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productName">
+                            <i class="fas fa-tag"></i> Product Name
+                        </label>
+                        <input type="text" id="productName" placeholder="e.g., AI Marketing Platform" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">
+                            <i class="fas fa-align-left"></i> Description
+                            <span class="char-count" id="descCount">0/500</span>
+                        </label>
+                        <textarea id="productDescription" rows="4" placeholder="Describe your product or service..." maxlength="500" required></textarea>
+                        <div class="form-hint">Include key benefits and value proposition</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="features">
+                            <i class="fas fa-star"></i> Key Features
+                        </label>
+                        <div class="features-list" id="featuresList">
+                            <div class="feature-item">
+                                <input type="text" placeholder="Feature 1" value="AI-powered automation">
+                                <button type="button" class="remove-feature">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="feature-item">
+                                <input type="text" placeholder="Feature 2" value="Predictive analytics">
+                                <button type="button" class="remove-feature">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="feature-item">
+                                <input type="text" placeholder="Feature 3" value="Real-time reporting">
+                                <button type="button" class="remove-feature">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-feature" id="addFeature">
+                            <i class="fas fa-plus"></i> Add Feature
+                        </button>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="clearForm()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                        <button type="button" class="btn-primary" onclick="nextSection()">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Customer Section -->
+                <div class="form-section" id="section2">
+                    <div class="section-header">
+                        <i class="fas fa-user-tie"></i>
+                        <h4>Customer Information</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerName">
+                            <i class="fas fa-user"></i> Customer/Company Name
+                        </label>
+                        <input type="text" id="customerName" placeholder="e.g., John Smith at TechCorp" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerRole">
+                            <i class="fas fa-briefcase"></i> Customer Role
+                        </label>
+                        <div class="role-options">
+                            <label class="role-option">
+                                <input type="radio" name="customerRole" value="ceo">
+                                <span class="role-badge ceo">
+                                    <i class="fas fa-crown"></i> C-Level
+                                </span>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="customerRole" value="director" checked>
+                                <span class="role-badge director">
+                                    <i class="fas fa-user-tie"></i> Director
+                                </span>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="customerRole" value="manager">
+                                <span class="role-badge manager">
+                                    <i class="fas fa-users"></i> Manager
+                                </span>
+                            </label>
+                            <label class="role-option">
+                                <input type="radio" name="customerRole" value="specialist">
+                                <span class="role-badge specialist">
+                                    <i class="fas fa-user-ninja"></i> Specialist
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="industry">
+                            <i class="fas fa-industry"></i> Industry
+                        </label>
+                        <select id="industry">
+                            <option value="">Select Industry</option>
+                            <option value="tech" selected>Technology</option>
+                            <option value="finance">Finance</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="retail">Retail/E-commerce</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="saas">SaaS</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="companySize">
+                            <i class="fas fa-users"></i> Company Size
+                        </label>
+                        <select id="companySize">
+                            <option value="">Select Size</option>
+                            <option value="startup">Startup (1-50)</option>
+                            <option value="small">Small (51-200)</option>
+                            <option value="medium" selected>Medium (201-1000)</option>
+                            <option value="large">Large (1000+)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="challenges">
+                            <i class="fas fa-exclamation-triangle"></i> Customer Challenges
+                            <span class="char-count" id="challengesCount">0/400</span>
+                        </label>
+                        <textarea id="challenges" rows="3" placeholder="What problems are they facing? What pain points can you solve?" maxlength="400" required></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="prevSection()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" class="btn-primary" onclick="nextSection()">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Generate Section -->
+                <div class="form-section" id="section3">
+                    <div class="section-header">
+                        <i class="fas fa-magic"></i>
+                        <h4>Generate Pitch</h4>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <h5><i class="fas fa-clipboard-check"></i> Pitch Summary</h5>
+                        <div class="summary-details">
+                            <div class="summary-item">
+                                <span>Product:</span>
+                                <strong id="summaryProduct">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Customer:</span>
+                                <strong id="summaryCustomer">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Role:</span>
+                                <strong id="summaryRole">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Industry:</span>
+                                <strong id="summaryIndustry">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Challenges:</span>
+                                <strong id="summaryChallenges">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-file-alt"></i> Pitch Format</label>
+                        <div class="format-grid">
+                            <label class="format-card">
+                                <input type="radio" name="format" value="email" checked>
+                                <div class="format-content">
+                                    <div class="format-icon email">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="format-info">
+                                        <h5>Email</h5>
+                                        <p>Professional outreach</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="format-card">
+                                <input type="radio" name="format" value="meeting">
+                                <div class="format-content">
+                                    <div class="format-icon meeting">
+                                        <i class="fas fa-handshake"></i>
+                                    </div>
+                                    <div class="format-info">
+                                        <h5>Meeting</h5>
+                                        <p>In-person/virtual pitch</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="format-card">
+                                <input type="radio" name="format" value="demo">
+                                <div class="format-content">
+                                    <div class="format-icon demo">
+                                        <i class="fas fa-desktop"></i>
+                                    </div>
+                                    <div class="format-info">
+                                        <h5>Demo</h5>
+                                        <p>Product demonstration</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="format-card">
+                                <input type="radio" name="format" value="linkedin">
+                                <div class="format-content">
+                                    <div class="format-icon linkedin">
+                                        <i class="fab fa-linkedin"></i>
+                                    </div>
+                                    <div class="format-info">
+                                        <h5>LinkedIn</h5>
+                                        <p>Professional network</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pitchTone">
+                            <i class="fas fa-palette"></i> Pitch Tone
+                        </label>
+                        <div class="tone-options">
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="professional" checked>
+                                <span class="tone-badge professional">
+                                    <i class="fas fa-suitcase"></i> Professional
+                                </span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="casual">
+                                <span class="tone-badge casual">
+                                    <i class="fas fa-coffee"></i> Casual
+                                </span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="enthusiastic">
+                                <span class="tone-badge enthusiastic">
+                                    <i class="fas fa-fire"></i> Enthusiastic
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="additionalNotes">
+                            <i class="fas fa-sticky-note"></i> Additional Notes
+                        </label>
+                        <textarea id="additionalNotes" rows="2" placeholder="Any specific requirements, key selling points, or customizations..."></textarea>
+                    </div>
+                    
+                    <div class="generate-actions">
+                        <button type="submit" class="btn-generate">
+                            <i class="fas fa-bolt"></i> Generate with AI
+                            <span class="ai-badge">LLaMA 3.3 70B</span>
+                        </button>
+                        <p class="generate-hint">
+                            <i class="fas fa-info-circle"></i>
+                            This will create a personalized sales pitch using Groq AI
+                        </p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="prevSection()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" class="btn-outline" onclick="clearForm()">
+                            <i class="fas fa-redo"></i> Start Over
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Quick Templates -->
+        <div class="templates-card">
+            <h4><i class="fas fa-bolt"></i> Quick Templates</h4>
+            <div class="template-list">
+                <button class="template-item pitch" onclick="loadTemplate('email')">
+                    <div class="template-icon email">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>Email Pitch</h5>
+                        <p>Cold outreach template</p>
+                    </div>
+                </button>
+                
+                <button class="template-item pitch" onclick="loadTemplate('b2b')">
+                    <div class="template-icon b2b">
+                                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>B2B Meeting</h5>
+                        <p>Enterprise sales pitch</p>
+                    </div>
+                </button>
+                
+                <button class="template-item pitch" onclick="loadTemplate('saas')">
+                    <div class="template-icon saas">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>SaaS Demo</h5>
+                        <p>Software demonstration</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Panel: Results -->
+    <div class="results-panel">
+        <div class="results-header">
+            <h3><i class="fas fa-file-alt"></i> Generated Pitch</h3>
+            <div class="results-actions" id="resultsActions" style="display: none;">
+                <button class="btn-action" onclick="copyResults()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <button class="btn-action" onclick="exportPDF()">
+                    <i class="fas fa-download"></i> PDF
+                </button>
+                <button class="btn-action" onclick="savePitch()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button class="btn-action" onclick="sharePitch()">
+                    <i class="fas fa-share"></i> Share
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="loader">
+                <div class="ai-loader">
+                    <div class="ai-particle"></div>
+                    <div class="ai-particle"></div>
+                    <div class="ai-particle"></div>
+                </div>
+                <h4>Crafting Your Pitch...</h4>
+                <p>Analyzing with Groq LLaMA 3.3 70B AI model</p>
+                <div class="loading-progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="loading-tips">
+                    <p><i class="fas fa-lightbulb"></i> Tip: The AI is personalizing the pitch based on customer role and industry</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Display -->
+        <div class="results-content" id="resultsContent">
+            <div class="empty-results">
+                <div class="empty-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <h3>Ready to Impress?</h3>
+                <p>Fill in the pitch details and click "Generate with AI" to create your perfect sales pitch.</p>
+                <div class="empty-features">
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>AI-Personalized</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Multiple Formats</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <span>High-Converting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div class="error-state" id="errorState" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h4>Oops! Something went wrong</h4>
+            <p id="errorMessage">Please try again or check your API configuration.</p>
+            <button class="btn-primary" onclick="retryGeneration()">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Pitch History Modal -->
+<div id="historyModal" class="modal">
+    <div class="modal-content wide">
+        <div class="modal-header">
+            <h3><i class="fas fa-history"></i> Pitch History</h3>
+            <button class="modal-close" onclick="closeModal('historyModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="historyList" class="history-list">
+                <!-- History items will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pitch.js') }}"></script>
+{% endblock %}

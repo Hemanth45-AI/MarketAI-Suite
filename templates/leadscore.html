@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}AI Lead Qualifier - MarketAI Suite{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/leadscore.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-content">
+        <h1><i class="fas fa-chart-line"></i> AI Lead Qualifier</h1>
+        <p>Score and prioritize leads with AI-powered qualification analysis. Identify hot leads and focus your efforts effectively.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn-outline" onclick="viewLeadHistory()">
+            <i class="fas fa-history"></i> History
+        </button>
+        <button class="btn-primary" onclick="newLead()">
+            <i class="fas fa-plus"></i> New Lead
+        </button>
+    </div>
+</div>
+
+<div class="leadscore-container">
+    <!-- Left Panel: Form -->
+    <div class="form-panel">
+        <div class="form-card">
+            <div class="form-header">
+                <h3><i class="fas fa-user-tie"></i> Lead Information</h3>
+                <div class="form-steps">
+                    <div class="step active">1. Basic Info</div>
+                    <div class="step">2. Qualification</div>
+                    <div class="step">3. Score</div>
+                </div>
+            </div>
+            
+            <form id="leadForm">
+                <!-- Basic Information -->
+                <div class="form-section active" id="section1">
+                    <div class="section-header">
+                        <i class="fas fa-id-card"></i>
+                        <h4>Basic Information</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="leadName">
+                            <i class="fas fa-user"></i> Lead Name
+                        </label>
+                        <input type="text" id="leadName" placeholder="e.g., John Smith" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="companyName">
+                            <i class="fas fa-building"></i> Company Name
+                        </label>
+                        <input type="text" id="companyName" placeholder="e.g., TechCorp Inc." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="leadRole">
+                            <i class="fas fa-briefcase"></i> Role/Position
+                        </label>
+                        <select id="leadRole">
+                            <option value="">Select Role</option>
+                            <option value="executive">C-Level Executive</option>
+                            <option value="director">Director</option>
+                            <option value="manager">Manager</option>
+                            <option value="specialist">Specialist</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="companyIndustry">
+                            <i class="fas fa-industry"></i> Industry
+                        </label>
+                        <select id="companyIndustry">
+                            <option value="">Select Industry</option>
+                            <option value="tech">Technology</option>
+                            <option value="finance">Finance</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="retail">Retail/E-commerce</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="education">Education</option>
+                            <option value="saas">SaaS</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="companySize">
+                            <i class="fas fa-users"></i> Company Size
+                        </label>
+                        <select id="companySize">
+                            <option value="">Select Size</option>
+                            <option value="startup">Startup (1-10)</option>
+                            <option value="small">Small (11-50)</option>
+                            <option value="medium">Medium (51-200)</option>
+                            <option value="large">Large (201-1000)</option>
+                            <option value="enterprise">Enterprise (1000+)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="clearForm()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                        <button type="button" class="btn-primary" onclick="nextSection()">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Qualification Details -->
+                <div class="form-section" id="section2">
+                    <div class="section-header">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h4>Qualification Details</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="businessNeed">
+                            <i class="fas fa-exclamation-circle"></i> Business Need
+                            <span class="char-count" id="needCount">0/300</span>
+                        </label>
+                        <textarea id="businessNeed" rows="3" placeholder="What problem are they trying to solve? What's their primary need?" maxlength="300" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="budgetAvailability">
+                            <i class="fas fa-wallet"></i> Budget Availability
+                        </label>
+                        <select id="budgetAvailability">
+                            <option value="">Select Budget</option>
+                            <option value="approved">Approved Budget</option>
+                            <option value="allocated">Budget Allocated</option>
+                            <option value="potential">Potential Budget</option>
+                            <option value="none">No Budget</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="budgetRange">
+                            <i class="fas fa-money-bill-wave"></i> Budget Range
+                        </label>
+                        <select id="budgetRange">
+                            <option value="">Select Range</option>
+                            <option value="under5k">Under $5K</option>
+                            <option value="5k-20k">$5K - $20K</option>
+                            <option value="20k-50k">$20K - $50K</option>
+                            <option value="50k-100k">$50K - $100K</option>
+                            <option value="100k+">$100K+</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timeline">
+                            <i class="fas fa-calendar-alt"></i> Timeline
+                        </label>
+                        <select id="timeline">
+                            <option value="">Select Timeline</option>
+                            <option value="immediate">Immediate (0-30 days)</option>
+                            <option value="short">Short-term (1-3 months)</option>
+                            <option value="medium">Medium-term (3-6 months)</option>
+                            <option value="long">Long-term (6+ months)</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="urgency">
+                            <i class="fas fa-fire"></i> Urgency Level
+                        </label>
+                        <div class="urgency-options">
+                            <label class="urgency-option">
+                                <input type="radio" name="urgency" value="high">
+                                <span class="urgency-badge high">
+                                    <i class="fas fa-fire"></i> High
+                                </span>
+                            </label>
+                            <label class="urgency-option">
+                                <input type="radio" name="urgency" value="medium" checked>
+                                <span class="urgency-badge medium">
+                                    <i class="fas fa-exclamation"></i> Medium
+                                </span>
+                            </label>
+                            <label class="urgency-option">
+                                <input type="radio" name="urgency" value="low">
+                                <span class="urgency-badge low">
+                                    <i class="fas fa-snowflake"></i> Low
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="decisionMakers">
+                            <i class="fas fa-user-friends"></i> Decision Makers
+                        </label>
+                        <select id="decisionMakers">
+                            <option value="">Select Decision Structure</option>
+                            <option value="single">Single Decision Maker</option>
+                            <option value="committee">Decision Committee</option>
+                            <option value="multiple">Multiple Stakeholders</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="competitors">
+                            <i class="fas fa-users"></i> Competitors Considered
+                        </label>
+                        <input type="text" id="competitors" placeholder="e.g., Salesforce, HubSpot, Marketo">
+                        <div class="form-hint">Separate with commas</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="challenges">
+                            <i class="fas fa-exclamation-triangle"></i> Specific Challenges
+                            <span class="char-count" id="challengesCount">0/400</span>
+                        </label>
+                        <textarea id="challenges" rows="3" placeholder="What specific challenges are they facing?" maxlength="400"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="prevSection()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" class="btn-primary" onclick="nextSection()">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Scoring Section -->
+                <div class="form-section" id="section3">
+                    <div class="section-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <h4>Score Lead</h4>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <h5><i class="fas fa-clipboard-check"></i> Lead Summary</h5>
+                        <div class="summary-details">
+                            <div class="summary-item">
+                                <span>Lead:</span>
+                                <strong id="summaryLead">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Company:</span>
+                                <strong id="summaryCompany">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Need:</span>
+                                <strong id="summaryNeed">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Budget:</span>
+                                <strong id="summaryBudget">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Timeline:</span>
+                                <strong id="summaryTimeline">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="additionalContext">
+                            <i class="fas fa-comment"></i> Additional Context
+                        </label>
+                        <textarea id="additionalContext" rows="3" placeholder="Any additional information, previous interactions, or special considerations..."></textarea>
+                    </div>
+                    
+                    <div class="scoring-method">
+                        <h5><i class="fas fa-calculator"></i> Scoring Method</h5>
+                        <div class="method-options">
+                            <label class="method-option">
+                                <input type="radio" name="scoringMethod" value="bant" checked>
+                                <span class="method-badge">
+                                    <i class="fas fa-list"></i> BANT
+                                    <small>Budget, Authority, Need, Timeline</small>
+                                </span>
+                            </label>
+                            <label class="method-option">
+                                <input type="radio" name="scoringMethod" value="meddic">
+                                <span class="method-badge">
+                                    <i class="fas fa-chart-line"></i> MEDDIC
+                                    <small>Metrics, Economic Buyer, Decision Criteria</small>
+                                </span>
+                            </label>
+                            <label class="method-option">
+                                <input type="radio" name="scoringMethod" value="custom">
+                                <span class="method-badge">
+                                    <i class="fas fa-cog"></i> Custom
+                                    <small>AI-powered analysis</small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="generate-actions">
+                        <button type="submit" class="btn-generate">
+                            <i class="fas fa-bolt"></i> Score Lead with AI
+                            <span class="ai-badge">LLaMA 3.3 70B</span>
+                        </button>
+                        <p class="generate-hint">
+                            <i class="fas fa-info-circle"></i>
+                            This will analyze and score the lead using Groq AI
+                        </p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="prevSection()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" class="btn-outline" onclick="clearForm()">
+                            <i class="fas fa-redo"></i> Start Over
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Quick Templates -->
+        <div class="templates-card">
+            <h4><i class="fas fa-bolt"></i> Lead Examples</h4>
+            <div class="template-list">
+                <button class="template-item lead" onclick="loadTemplate('hot')">
+                    <div class="template-icon hot">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>Hot Lead</h5>
+                        <p>Ready to buy</p>
+                    </div>
+                </button>
+                
+                <button class="template-item lead" onclick="loadTemplate('warm')">
+                    <div class="template-icon warm">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>Warm Lead</h5>
+                        <p>Considering options</p>
+                    </div>
+                </button>
+                
+                <button class="template-item lead" onclick="loadTemplate('cold')">
+                    <div class="template-icon cold">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>Cold Lead</h5>
+                        <p>Early stage</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Panel: Results -->
+    <div class="results-panel">
+        <div class="results-header">
+            <h3><i class="fas fa-chart-bar"></i> Lead Score Results</h3>
+            <div class="results-actions" id="resultsActions" style="display: none;">
+                <button class="btn-action" onclick="copyResults()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <button class="btn-action" onclick="exportPDF()">
+                    <i class="fas fa-download"></i> PDF
+                </button>
+                <button class="btn-action" onclick="saveLead()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button class="btn-action" onclick="shareLead()">
+                    <i class="fas fa-share"></i> Share
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="loader">
+                <div class="ai-loader">
+                    <div class="ai-particle"></div>
+                    <div class="ai-particle"></div>
+                    <div class="ai-particle"></div>
+                </div>
+                <h4>Analyzing Lead...</h4>
+                <p>Qualifying with Groq LLaMA 3.3 70B AI model</p>
+                <div class="loading-progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="loading-tips">
+                    <p><i class="fas fa-lightbulb"></i> Tip: The AI is evaluating budget, authority, need, and timeline factors</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Display -->
+        <div class="results-content" id="resultsContent">
+            <div class="empty-results">
+                <div class="empty-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Ready to Qualify?</h3>
+                <p>Fill in the lead details and click "Score Lead with AI" to get your qualification analysis.</p>
+                <div class="empty-features">
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>AI-Powered Scoring</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Detailed Analysis</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Actionable Insights</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div class="error-state" id="errorState" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h4>Oops! Something went wrong</h4>
+            <p id="errorMessage">Please try again or check your API configuration.</p>
+            <button class="btn-primary" onclick="retryGeneration()">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Lead History Modal -->
+<div id="historyModal" class="modal">
+    <div class="modal-content wide">
+        <div class="modal-header">
+            <h3><i class="fas fa-history"></i> Lead History</h3>
+            <button class="modal-close" onclick="closeModal('historyModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="historyList" class="history-list">
+                <!-- History items will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/leadscore.js') }}"></script>
+{% endblock %}

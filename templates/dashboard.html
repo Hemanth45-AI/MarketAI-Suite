@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketAI Suite - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Add this to your existing dashboard.css or replace with enhanced version */
+        
+        /* Dashboard Layout Enhancements */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        /* Welcome Header */
+        .welcome-header {
+            grid-column: span 12;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideUp 0.6s ease;
+        }
+
+        .welcome-text h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .welcome-text p {
+            color: var(--text-secondary);
+            max-width: 500px;
+        }
+
+        .date-display {
+            background: var(--bg-card);
+            padding: var(--space);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            text-align: center;
+            min-width: 180px;
+        }
+
+        .date-display .day {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .date-display .date {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space);
+            margin-bottom: var(--space-xl);
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: var(--space);
+            color: white;
+        }
+
+        .stat-card:nth-child(1) .stat-icon {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            background: linear-gradient(135deg, var(--secondary), #7c3aed);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Main Features Grid */
+        .features-grid {
+            grid-column: span 8;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space);
+        }
+
+        @media (max-width: 1024px) {
+            .features-grid {
+                grid-column: span 12;
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: var(--space-lg);
+            color: white;
+        }
+
+        .feature-icon.campaign {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .feature-icon.pitch {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .feature-icon.lead {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+        }
+
+        .feature-icon.analytics {
+            background: linear-gradient(135deg, var(--secondary), #7c3aed);
+        }
+
+        .feature-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .feature-content p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: var(--space);
+            flex-grow: 1;
+        }
+
+        .feature-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .feature-action:hover {
+            gap: 1rem;
+        }
+
+        /* Recent Activities Sidebar */
+        .activities-sidebar {
+            grid-column: span 4;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .activities-sidebar {
+                grid-column: span 12;
+                height: auto;
+            }
+        }
+
+        .activities-header {
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activities-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .view-all-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+
+        .activities-list {
+            padding: var(--space-lg);
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: var(--space);
+            padding: var(--space);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            margin-bottom: var(--space);
+        }
+
+        .activity-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.campaign {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .activity-icon.pitch {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .activity-icon.lead {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+        }
+
+        .activity-content h4 {
+            font-size: 0.875rem;
+            margin: 0 0 0.25rem 0;
+            color: var(--text-primary);
+        }
+
+        .activity-content p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin: 0 0 0.25rem 0;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .empty-activities {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--text-muted);
+        }
+
+        .empty-activities i {
+            font-size: 3rem;
+            margin-bottom: var(--space);
+            opacity: 0.5;
+        }
+
+        /* AI Assistant Widget */
+        .ai-assistant-widget {
+            grid-column: span 12;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-top: var(--space-xl);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-assistant-widget::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-widget-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .ai-widget-content {
+                flex-direction: column;
+                gap: var(--space-lg);
+                text-align: center;
+            }
+        }
+
+        .ai-widget-text h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .ai-widget-text p {
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 500px;
+        }
+
+        .ai-widget-action .btn-primary {
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .ai-widget-action .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            grid-column: span 12;
+            margin-top: var(--space-xl);
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space);
+        }
+
+        .quick-action-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: var(--space);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: var(--space);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .quick-action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .quick-action-text h4 {
+            font-size: 0.875rem;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .quick-action-text p {
+            font-size: 0.75rem;
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                gap: var(--space);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .welcome-header {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space);
+            }
+            
+            .date-display {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-primary">MarketAI Suite</span>
+                    <span class="logo-secondary">AI-Powered Marketing Platform</span>
+                </div>
+            </a>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-rocket"></i>
+                    Campaigns
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-bullhorn"></i>
+                    Pitches
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
+                <div class="nav-divider"></div>
+                <div class="nav-profile">
+                    <div class="profile-dropdown">
+                        <div class="profile-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-info">
+                            <span class="profile-name">Alex Johnson</span>
+                            <span class="profile-status">Premium User</span>
+                        </div>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Welcome Header -->
+                <div class="welcome-header">
+                    <div class="welcome-text">
+                        <h2>Welcome back, Alex! 👋</h2>
+                        <p>Your AI-powered marketing dashboard is ready. Create amazing campaigns with just a few clicks.</p>
+                    </div>
+                    <div class="date-display">
+                        <div class="day">Wednesday</div>
+                        <div class="date">October 25, 2023</div>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Active Campaigns</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12% from last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">Leads Generated</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8% from last week</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-value">86%</div>
+                        <div class="stat-label">Engagement Rate</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>5% improvement</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Pending Actions</div>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>3 need attention</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Features -->
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon campaign floating">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Campaign Generator</h3>
+                            <p>Create data-driven marketing campaigns with AI assistance. Generate strategies, content ideas, and ad copy instantly.</p>
+                            <a href="#" class="feature-action">
+                                <span>Launch Campaign</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon pitch floating" style="animation-delay: 0.2s;">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Sales Pitch Generator</h3>
+                            <p>Craft personalized sales pitches tailored to your audience. Perfect for emails, meetings, and demos.</p>
+                            <a href="#" class="feature-action">
+                                <span>Create Pitch</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon lead floating" style="animation-delay: 0.4s;">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Lead Qualifier</h3>
+                            <p>Score and prioritize leads with AI. Focus your efforts on high-potential prospects with intelligent scoring.</p>
+                            <a href="#" class="feature-action">
+                                <span>Score Leads</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon analytics floating" style="animation-delay: 0.6s;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Performance Analytics</h3>
+                            <p>Track campaign performance with real-time analytics. Get insights and recommendations for optimization.</p>
+                            <a href="#" class="feature-action">
+                                <span>View Analytics</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="activities-sidebar">
+                    <div class="activities-header">
+                        <h3><i class="fas fa-history"></i> Recent Activities</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    
+                    <div class="activities-list">
+                        <div class="activity-item">
+                            <div class="activity-icon campaign">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Campaign Launched</h4>
+                                <p>"Summer Sale 2023" campaign is now live</p>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon lead">
+                                <i class="fas fa-filter"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Lead Qualified</h4>
+                                <p>45 new leads scored and categorized</p>
+                                <div class="activity-time">4 hours ago</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon pitch">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Pitch Generated</h4>
+                                <p>B2B sales pitch created for TechCorp</p>
+                                <div class="activity-time">Yesterday</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon campaign">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Performance Update</h4>
+                                <p>Campaign ROI increased by 24%</p>
+                                <div class="activity-time">2 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Widget -->
+                <div class="ai-assistant-widget">
+                    <div class="ai-widget-content">
+                        <div class="ai-widget-text">
+                            <h3>🤖 AI Assistant Ready to Help</h3>
+                            <p>Need help creating your next campaign? Our AI assistant can suggest strategies, write copy, and optimize your marketing efforts.</p>
+                        </div>
+                        <div class="ai-widget-action">
+                            <button class="btn-primary">
+                                <i class="fas fa-robot"></i>
+                                Ask AI Assistant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="quick-actions-grid">
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="quick-action-text">
+                                <h4>New Campaign</h4>
+                                <p>Start a fresh marketing campaign</p>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <div class="quick-action-text">
+                                <h4>Import Leads</h4>
+                                <p>Upload and analyze new leads</p>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-file-export"></i>
+                            </div>
+                            <div class="quick-action-text">
+                                <h4>Export Report</h4>
+                                <p>Download campaign analytics</p>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="quick-action-text">
+                                <h4>Settings</h4>
+                                <p>Configure AI preferences</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo-icon small">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="footer-text">
+                        <h4>MarketAI Suite</h4>
+                        <p>AI-Powered Marketing Platform</p>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-book"></i> Documentation</a>
+                    <a href="#"><i class="fas fa-life-ring"></i> Support</a>
+                    <a href="#"><i class="fas fa-shield-alt"></i> Privacy</a>
+                </div>
+                
+                <div class="footer-tech">
+                    <div class="tech-badge">
+                        <i class="fas fa-bolt"></i>
+                        Powered by Groq AI
+                    </div>
+                    <div class="version">Version 2.1.0</div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2023 MarketAI Suite. All rights reserved. Transforming marketing with artificial intelligence.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="theme-btn" id="themeToggle">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+        }
+        
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // Close mobile menu on click outside
+        document.addEventListener('click', (event) => {
+            if (!navLinks.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                navLinks.classList.remove('active');
+            }
+        });
+        
+        // Update current date
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+            const day = now.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            document.querySelector('.day').textContent = day;
+            document.querySelector('.date').textContent = dateStr.split(', ')[1] + ', ' + dateStr.split(', ')[2];
+        }
+        
+        updateDate();
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all cards
+        document.querySelectorAll('.stat-card, .feature-card, .activity-item').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

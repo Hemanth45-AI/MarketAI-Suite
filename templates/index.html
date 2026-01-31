@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MarketAI Suite{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Welcome Header -->
+    <div class="welcome-header">
+        <div class="welcome-text">
+            <h2>Welcome back, User! 👋</h2>
+            <p>Your AI-powered marketing dashboard is ready. Create amazing campaigns with just a few clicks.</p>
+        </div>
+        <div class="date-display">
+            <div class="day">Wednesday</div>
+            <div class="date">October 25, 2023</div>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="stat-value" id="campaigns-count">0</div>
+            <div class="stat-label">Campaigns Created</div>
+            <div class="stat-change positive">
+                <i class="fas fa-plus"></i>
+                <span>Start your first campaign</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <div class="stat-value" id="leads-count">0</div>
+            <div class="stat-label">Leads Scored</div>
+            <div class="stat-change positive">
+                <i class="fas fa-plus"></i>
+                <span>Score your first leads</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="stat-value" id="pitches-count">0</div>
+            <div class="stat-label">Pitches Generated</div>
+            <div class="stat-change positive">
+                <i class="fas fa-plus"></i>
+                <span>Create your first pitch</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-value" id="total-activities">0</div>
+            <div class="stat-label">Total Activities</div>
+            <div class="stat-change positive">
+                <i class="fas fa-check"></i>
+                <span>All caught up</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Main Features -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon campaign floating">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="feature-content">
+                    <h3>Campaign Generator</h3>
+                    <p>Create data-driven marketing campaigns with AI assistance. Generate strategies, content ideas, and ad copy instantly.</p>
+                    <a href="/campaign" class="feature-action">
+                        <span>Launch Campaign</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon pitch floating" style="animation-delay: 0.2s;">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="feature-content">
+                    <h3>Sales Pitch Generator</h3>
+                    <p>Craft personalized sales pitches tailored to your audience. Perfect for emails, meetings, and demos.</p>
+                    <a href="/pitch" class="feature-action">
+                        <span>Create Pitch</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon lead floating" style="animation-delay: 0.4s;">
+                    <i class="fas fa-filter"></i>
+                </div>
+                <div class="feature-content">
+                    <h3>Lead Qualifier</h3>
+                    <p>Score and prioritize leads with AI. Focus your efforts on high-potential prospects with intelligent scoring.</p>
+                    <a href="/leadscore" class="feature-action">
+                        <span>Score Leads</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon analytics floating" style="animation-delay: 0.6s;">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="feature-content">
+                    <h3>Performance Analytics</h3>
+                    <p>Track campaign performance with real-time analytics. Get insights and recommendations for optimization.</p>
+                    <a href="#" class="feature-action" onclick="showComingSoon()">
+                        <span>Coming Soon</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="activities-sidebar">
+            <div class="activities-header">
+                <h3><i class="fas fa-history"></i> Recent Activities</h3>
+                <a href="#" class="view-all-link">View All</a>
+            </div>
+            
+            <div class="activities-list" id="activities-list">
+                <div class="empty-activities">
+                    <i class="fas fa-inbox"></i>
+                    <h4>No activities yet</h4>
+                    <p>Start by creating your first campaign!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant Widget -->
+        <div class="ai-assistant-widget">
+            <div class="ai-widget-content">
+                <div class="ai-widget-text">
+                    <h3>🤖 AI Assistant Ready to Help</h3>
+                    <p>Powered by Groq's LLaMA 3.3 70B model for lightning-fast, intelligent marketing assistance.</p>
+                </div>
+                <div class="ai-widget-action">
+                    <button class="btn-primary" onclick="openModal('settingsModal')">
+                        <i class="fas fa-robot"></i>
+                        Configure AI
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions-grid">
+                <a href="/campaign" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h4>New Campaign</h4>
+                        <p>Start a fresh marketing campaign</p>
+                    </div>
+                </a>
+                
+                <a href="/pitch" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h4>Generate Pitch</h4>
+                        <p>Create a sales pitch instantly</p>
+                    </div>
+                </a>
+                
+                <a href="/leadscore" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h4>Score Leads</h4>
+                        <p>Analyze and prioritize leads</p>
+                    </div>
+                </a>
+                
+                <a href="#" class="quick-action-card" onclick="openModal('settingsModal')">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h4>Settings</h4>
+                        <p>Configure AI preferences</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+// Format timestamps (if you add them back later)
+function formatRelativeTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 60) {
+        return diffMins === 1 ? '1 minute ago' : `${diffMins} minutes ago`;
+    } else if (diffHours < 24) {
+        return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+    } else if (diffDays < 7) {
+        return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+    } else {
+        return date.toLocaleDateString();
+    }
+}
+
+// Load activities from server
+function loadActivities() {
+    fetch('/api/activities')
+        .then(response => response.json())
+        .then(activities => {
+            updateActivityStats(activities);
+            displayActivities(activities);
+        })
+        .catch(error => {
+            console.error('Failed to load activities:', error);
+        });
+}
+
+// Update stats counters
+function updateActivityStats(activities) {
+    const campaignCount = activities.filter(a => a.type === 'campaign').length;
+    const leadCount = activities.filter(a => a.type === 'leadscore').length;
+    const pitchCount = activities.filter(a => a.type === 'pitch').length;
+    
+    document.getElementById('campaigns-count').textContent = campaignCount;
+    document.getElementById('leads-count').textContent = leadCount;
+    document.getElementById('pitches-count').textContent = pitchCount;
+    document.getElementById('total-activities').textContent = activities.length;
+}
+
+// Display activities in the sidebar
+function displayActivities(activities) {
+    const activitiesList = document.getElementById('activities-list');
+    
+    if (activities.length === 0) {
+        activitiesList.innerHTML = `
+            <div class="empty-activities">
+                <i class="fas fa-inbox"></i>
+                <h4>No activities yet</h4>
+                <p>Start by creating your first campaign!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort by timestamp (newest first)
+    const sortedActivities = activities.sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+    ).slice(0, 5); // Show only 5 most recent
+    
+    let html = '';
+    
+    sortedActivities.forEach(activity => {
+        let icon = 'fa-star';
+        let title = 'Activity';
+        
+        if (activity.type === 'campaign') {
+            icon = 'fa-bullhorn';
+            title = 'Campaign Created';
+        } else if (activity.type === 'pitch') {
+            icon = 'fa-microphone';
+            title = 'Pitch Generated';
+        } else if (activity.type === 'leadscore') {
+            icon = 'fa-filter';
+            title = 'Lead Scored';
+        }
+        
+        const timeAgo = formatRelativeTime(activity.timestamp);
+        const preview = activity.data?.product || activity.data?.name || 'New activity';
+        
+        html += `
+            <div class="activity-item">
+                <div class="activity-icon ${activity.type}">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="activity-content">
+                    <h4>${title}</h4>
+                    <p>${preview}</p>
+                    <div class="activity-time">${timeAgo}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    activitiesList.innerHTML = html;
+}
+
+// Show coming soon message
+function showComingSoon() {
+    alert('This feature is coming soon! Stay tuned for updates.');
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Load activities from server
+    loadActivities();
+    
+    // Update stats every 30 seconds
+    setInterval(loadActivities, 30000);
+    
+    // Initialize dashboard animations
+    if (typeof initDashboard === 'function') {
+        initDashboard();
+    }
+});
+</script>
+{% endblock %}

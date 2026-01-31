@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block title %}AI Campaign Generator - MarketAI Suite{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/campaign.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-content">
+        <h1><i class="fas fa-bullhorn"></i> AI Campaign Generator</h1>
+        <p>Create data-driven marketing campaigns with Groq AI. Generate strategies, content ideas, and ad copy instantly.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn-outline" onclick="viewHistory()">
+            <i class="fas fa-history"></i> History
+        </button>
+        <button class="btn-primary" onclick="newCampaign()">
+            <i class="fas fa-plus"></i> New Campaign
+        </button>
+    </div>
+</div>
+
+<div class="campaign-container">
+    <!-- Left Panel: Form -->
+    <div class="form-panel">
+        <div class="form-card">
+            <div class="form-header">
+                <h3><i class="fas fa-edit"></i> Campaign Details</h3>
+                <div class="form-steps">
+                    <div class="step active">1. Details</div>
+                    <div class="step">2. Platforms</div>
+                    <div class="step">3. Generate</div>
+                </div>
+            </div>
+            
+            <form id="campaignForm">
+                <!-- Product Section -->
+                <div class="form-section active" id="section1">
+                    <div class="section-header">
+                        <i class="fas fa-box-open"></i>
+                        <h4>Product/Service Details</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productName">
+                            <i class="fas fa-tag"></i> Product Name
+                        </label>
+                        <input type="text" id="productName" placeholder="e.g., AI Marketing Assistant" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">
+                            <i class="fas fa-align-left"></i> Description
+                            <span class="char-count" id="descCount">0/500</span>
+                        </label>
+                        <textarea id="productDescription" rows="4" placeholder="Describe your product or service in detail..." maxlength="500" required></textarea>
+                        <div class="form-hint">Include key features, benefits, and target market</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaignGoal">
+                            <i class="fas fa-bullseye"></i> Campaign Goal
+                        </label>
+                        <select id="campaignGoal">
+                            <option value="awareness">Brand Awareness</option>
+                            <option value="leads">Lead Generation</option>
+                            <option value="sales">Direct Sales</option>
+                            <option value="engagement">Customer Engagement</option>
+                            <option value="launch">Product Launch</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaignBudget">
+                            <i class="fas fa-wallet"></i> Budget Range
+                        </label>
+                        <div class="budget-slider">
+                            <input type="range" id="campaignBudget" min="0" max="4" value="2">
+                            <div class="budget-labels">
+                                <span>Under $1K</span>
+                                <span>$1K-5K</span>
+                                <span>$5K-20K</span>
+                                <span>$20K-100K</span>
+                                <span>$100K+</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="clearForm()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                        <button type="button" class="btn-primary" onclick="nextSection()">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Audience & Platforms Section -->
+                <div class="form-section" id="section2">
+                    <div class="section-header">
+                        <i class="fas fa-users"></i>
+                        <h4>Target Audience & Platforms</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="targetAudience">
+                            <i class="fas fa-user-friends"></i> Target Audience
+                            <span class="char-count" id="audienceCount">0/300</span>
+                        </label>
+                        <textarea id="targetAudience" rows="3" placeholder="Describe your ideal customer demographics, interests, pain points..." maxlength="300" required></textarea>
+                        <div class="form-hint">Be specific: age, location, job role, challenges, etc.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-globe"></i> Select Platforms</label>
+                        <div class="platform-grid">
+                            <label class="platform-card">
+                                <input type="checkbox" name="platform" value="LinkedIn">
+                                <div class="platform-content">
+                                    <div class="platform-icon linkedin">
+                                        <i class="fab fa-linkedin"></i>
+                                    </div>
+                                    <div class="platform-info">
+                                        <h5>LinkedIn</h5>
+                                        <p>B2B, Professional</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="platform-card">
+                                <input type="checkbox" name="platform" value="Instagram">
+                                <div class="platform-content">
+                                    <div class="platform-icon instagram">
+                                        <i class="fab fa-instagram"></i>
+                                    </div>
+                                    <div class="platform-info">
+                                        <h5>Instagram</h5>
+                                        <p>Visual, Millennial</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="platform-card">
+                                <input type="checkbox" name="platform" value="Facebook">
+                                <div class="platform-content">
+                                    <div class="platform-icon facebook">
+                                        <i class="fab fa-facebook"></i>
+                                    </div>
+                                    <div class="platform-info">
+                                        <h5>Facebook</h5>
+                                        <p>Broad Reach</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="platform-card">
+                                <input type="checkbox" name="platform" value="Twitter">
+                                <div class="platform-content">
+                                    <div class="platform-icon twitter">
+                                        <i class="fab fa-twitter"></i>
+                                    </div>
+                                    <div class="platform-info">
+                                        <h5>Twitter/X</h5>
+                                        <p>Real-time, News</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="platform-card">
+                                <input type="checkbox" name="platform" value="Email">
+                                <div class="platform-content">
+                                    <div class="platform-icon email">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="platform-info">
+                                        <h5>Email</h5>
+                                        <p>Direct, Personal</p>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="platform-card">
+                                <input type="checkbox" name="platform" value="Google Ads">
+                                <div class="platform-content">
+                                    <div class="platform-icon google">
+                                        <i class="fab fa-google"></i>
+                                    </div>
+                                    <div class="platform-info">
+                                        <h5>Google Ads</h5>
+                                        <p>Search, Display</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaignTone">
+                            <i class="fas fa-palette"></i> Brand Tone
+                        </label>
+                        <div class="tone-options">
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="professional" checked>
+                                <span class="tone-badge professional">
+                                    <i class="fas fa-suitcase"></i> Professional
+                                </span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="casual">
+                                <span class="tone-badge casual">
+                                    <i class="fas fa-coffee"></i> Casual
+                                </span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="enthusiastic">
+                                <span class="tone-badge enthusiastic">
+                                    <i class="fas fa-fire"></i> Enthusiastic
+                                </span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="authoritative">
+                                <span class="tone-badge authoritative">
+                                    <i class="fas fa-graduation-cap"></i> Authoritative
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="prevSection()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" class="btn-primary" onclick="nextSection()">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Generate Section -->
+                <div class="form-section" id="section3">
+                    <div class="section-header">
+                        <i class="fas fa-magic"></i>
+                        <h4>Generate Campaign</h4>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <h5><i class="fas fa-clipboard-check"></i> Campaign Summary</h5>
+                        <div class="summary-details">
+                            <div class="summary-item">
+                                <span>Product:</span>
+                                <strong id="summaryProduct">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Goal:</span>
+                                <strong id="summaryGoal">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Audience:</span>
+                                <strong id="summaryAudience">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Platforms:</span>
+                                <strong id="summaryPlatforms">-</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Tone:</span>
+                                <strong id="summaryTone">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="additionalNotes">
+                            <i class="fas fa-sticky-note"></i> Additional Notes
+                        </label>
+                        <textarea id="additionalNotes" rows="2" placeholder="Any specific requirements, competitors to mention, or special considerations..."></textarea>
+                    </div>
+                    
+                    <div class="generate-actions">
+                        <button type="submit" class="btn-generate">
+                            <i class="fas fa-bolt"></i> Generate with AI
+                            <span class="ai-badge">LLaMA 3.3 70B</span>
+                        </button>
+                        <p class="generate-hint">
+                            <i class="fas fa-info-circle"></i>
+                            This will generate a complete marketing campaign using Groq AI
+                        </p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="prevSection()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="button" class="btn-outline" onclick="clearForm()">
+                            <i class="fas fa-redo"></i> Start Over
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Quick Templates -->
+        <div class="templates-card">
+            <h4><i class="fas fa-bolt"></i> Quick Templates</h4>
+            <div class="template-list">
+                <button class="template-item" onclick="loadTemplate('saas')">
+                    <div class="template-icon saas">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>SaaS Launch</h5>
+                        <p>AI-powered software</p>
+                    </div>
+                </button>
+                
+                <button class="template-item" onclick="loadTemplate('ecommerce')">
+                    <div class="template-icon ecommerce">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>E-commerce Sale</h5>
+                        <p>Seasonal promotion</p>
+                    </div>
+                </button>
+                
+                <button class="template-item" onclick="loadTemplate('b2b')">
+                    <div class="template-icon b2b">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>B2B Service</h5>
+                        <p>Enterprise solution</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Panel: Results -->
+    <div class="results-panel">
+        <div class="results-header">
+            <h3><i class="fas fa-file-alt"></i> Generated Campaign</h3>
+            <div class="results-actions" id="resultsActions" style="display: none;">
+                <button class="btn-action" onclick="copyResults()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <button class="btn-action" onclick="exportPDF()">
+                    <i class="fas fa-download"></i> PDF
+                </button>
+                <button class="btn-action" onclick="saveCampaign()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button class="btn-action" onclick="shareCampaign()">
+                    <i class="fas fa-share"></i> Share
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="loader">
+                <div class="ai-loader">
+                    <div class="ai-particle"></div>
+                    <div class="ai-particle"></div>
+                    <div class="ai-particle"></div>
+                </div>
+                <h4>Generating Campaign...</h4>
+                <p>Analyzing with Groq LLaMA 3.3 70B AI model</p>
+                <div class="loading-progress">
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="loading-tips">
+                    <p><i class="fas fa-lightbulb"></i> Tip: The AI is creating platform-specific strategies and ad copy variations</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Display -->
+        <div class="results-content" id="resultsContent">
+            <div class="empty-results">
+                <div class="empty-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h3>Ready to Create Magic?</h3>
+                <p>Fill in the campaign details and click "Generate with AI" to create your marketing strategy.</p>
+                <div class="empty-features">
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Instant AI Generation</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Data-Driven Strategies</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-copy"></i>
+                        <span>Ready-to-Use Content</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div class="error-state" id="errorState" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h4>Oops! Something went wrong</h4>
+            <p id="errorMessage">Please try again or check your API configuration.</p>
+            <button class="btn-primary" onclick="retryGeneration()">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign History Modal -->
+<div id="historyModal" class="modal">
+    <div class="modal-content wide">
+        <div class="modal-header">
+            <h3><i class="fas fa-history"></i> Campaign History</h3>
+            <button class="modal-close" onclick="closeModal('historyModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="historyList" class="history-list">
+                <!-- History items will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/campaign.js') }}"></script>
+{% endblock %}
